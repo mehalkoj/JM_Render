@@ -244,13 +244,25 @@ bool edgeFunc(const Vec2 &a, const Vec2 &b, const Vec2 &c) {
 
 
 
+void triangle(std::vector<Vec2> vertices, Texture& framebuffer) {
+
+	// loop and draw points / lines between values
 
 
+	int minx = std::min(std::min(vertices[0].x, vertices[1].x), vertices[2].x);
+	int miny = std::min(std::min(vertices[0].y, vertices[1].y), vertices[2].y);
+	int maxx = std::max(std::max(vertices[0].x, vertices[1].x), vertices[2].x);
+	int maxy = std::max(std::max(vertices[0].y, vertices[1].y), vertices[2].y);
 
 
+	for (int x = minx; x <= maxx; x++) {
+		for (int y = miny; y <= maxy; y++) {
+			putPixel(x, y, 255, 255, 255, framebuffer);
 
+		}
 
-
+	}
+}
 
 
 
@@ -323,7 +335,7 @@ int main(int argc, char* argv[]) {
 			}
 
 
-
+			triangle(vertices, framebuffer);
 
 
 
