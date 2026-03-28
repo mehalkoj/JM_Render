@@ -10,8 +10,7 @@
 
 
 
-#define WIDTH  800
-#define HEIGHT 600
+
 
 
 
@@ -19,7 +18,18 @@ SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Texture* texture;
 SDL_Event event;
-uint32_t* textureBuffer;
+
+struct Texture {
+	int Height;
+	int Width;
+	std::unique_ptr<uint32_t[]> pixels;
+
+	Texture(int w, int h)
+		: Width(w), Height(h),
+		pixels(std::make_unique<uint32_t[]>(w * h)) {}
+};
+
+
 
 struct Vec2 {
 	float x, y;
@@ -114,16 +124,18 @@ struct Vec3 {
 };*/
 
 
-void putPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a = SDL_ALPHA_OPAQUE) {
-	if (x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) {
+
+void putPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
+	Uint8 a = SDL_ALPHA_OPAQUE;
+	if (x >= 0 && x < framebuffer.Width && y >= 0 && y < framebuffer.Height) {
 		uint32_t color = (a << 24) | (r << 16) | (g << 8) | b;
-		textureBuffer[y * WIDTH + x] = color;
+		framebuffer.pixels[y * framebuffer.Width + x] = color;
 	}
 }
 
 
 //bresenham
-void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
+void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
 	if (x0 > x1) {
 		std::swap(x0, x1);
 		std::swap(y0, y1);
@@ -150,7 +162,7 @@ void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
 		int y = y0;
 		int p = 2 * dy - dx;
 		for (int i = 0; i < dx + 1; i++) {
-			putPixel(x0 + i, y, r, g, b);
+			putPixel(x0 + i, y, r, g, b, framebuffer);
 
 			if (p >= 0) {
 				y += dir;
@@ -165,7 +177,7 @@ void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
 };
 
 
-void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
+void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
 	if (y0 > y1) {
 		std::swap(x0, x1);
 		std::swap(y0, y1);
@@ -192,7 +204,7 @@ void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
 		int x = x0;
 		int p = 2 * dx - dy;
 		for (int i = 0; i < dy + 1; i++) {
-			putPixel(x, y0 + i, r, g, b);
+			putPixel(x, y0 + i, r, g, b, framebuffer);
 
 			if (p >= 0) {
 				x += dir;
@@ -207,24 +219,46 @@ void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
 };
 
 // uses bresenham
-void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b) {
+void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
+	if (!framebuffer.pixels) {
+		printf("pixels is null!\n");
+		return;
+	}
+	
+	
 	if (abs(x1 - x0) > abs(y1 - y0)) {
-		drawLineH(x0, y0, x1, y1, r, g, b);
+		drawLineH(x0, y0, x1, y1, r, g, b, framebuffer);
 	}
 	else {
-		drawLineV(x0, y0, x1, y1, r, g, b);
+		drawLineV(x0, y0, x1, y1, r, g, b, framebuffer);
 	}
 }
 
+
+
+
 bool edgeFunc(const Vec2 &a, const Vec2 &b, const Vec2 &c) {
-	// center point of pixel
 
 	return ((c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x) >= 0);
 }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char* argv[]) {
+	#define WIDTH  800
+	#define HEIGHT 600
+	Texture framebuffer(WIDTH, HEIGHT);
 
 
 
@@ -238,15 +272,7 @@ int main(int argc, char* argv[]) {
 
 
 
-	/* 
-	bresenhams algo 
 
-	draw lines from left to right
-	x1 < x2 and y1 < y2
-	Slope of the line is between 0 and 1. Draw from lower left to upper right
-	
-	
-	*/
 
 
 
@@ -260,16 +286,15 @@ int main(int argc, char* argv[]) {
 
 	window = SDL_CreateWindow(
 		"JM Render",
-		WIDTH,
-		HEIGHT,
+		framebuffer.Width,
+		framebuffer.Height,
 		SDL_WINDOW_RESIZABLE
 	);
 
 
 	
 	renderer = SDL_CreateRenderer(window, NULL);
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, WIDTH, HEIGHT);
-	textureBuffer = new uint32_t[WIDTH * HEIGHT];
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, framebuffer.Width, framebuffer.Height);
 
 
 	/*Mat4 matrix1;
@@ -288,28 +313,21 @@ int main(int argc, char* argv[]) {
 		}
 
 			// clear
-			memset(textureBuffer, 0, WIDTH * HEIGHT * sizeof(uint32_t));
+			memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
 
 
 			for (int i = 0; i < vertices.size(); i++) {
 				int next = (i + 1) % vertices.size();
-				drawLine(vertices[i].x, vertices[i].y, vertices[next].x, vertices[next].y, 255, 255, 255);
+				drawLine(vertices[i].x, vertices[i].y, vertices[next].x, vertices[next].y, 255, 255, 255, framebuffer);
 
 			}
 
-			bool inside = true;
-
-
-			//bresenham(100, 100, 400, 300, 255, 0, 0);    // red diagonal
-			//bresenham(0, 200, 600, 200, 0, 255, 0);      // green horizontal
-			/*utPixel(300, 240, 0, 0, 0, 255);
-			putPixel(450, 140, 0, 0, 0, 255);
-			putPixel(150, 340, 0, 0, 0, 255);
-			*/
 
 
 
-			SDL_UpdateTexture(texture, NULL, textureBuffer, WIDTH * sizeof(Uint32));
+
+
+			SDL_UpdateTexture(texture, NULL, framebuffer.pixels.get(), framebuffer.Width * sizeof(Uint32));
 			SDL_RenderTexture(renderer, texture, NULL, NULL);
 			SDL_RenderPresent(renderer);
 

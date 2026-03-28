@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Razterizer", "Razterizer.vcxproj", "{E6B95C64-3EA8-4DD8-AE7D-291DD7EAE188}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JM_Render", "JM_Render.vcxproj", "{E6B95C64-3EA8-4DD8-AE7D-291DD7EAE188}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL3", "..\vendored\SDL\VisualC\SDL\SDL.vcxproj", "{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68}"
 EndProject
