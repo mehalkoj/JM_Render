@@ -9,11 +9,6 @@
 
 
 
-
-
-
-
-
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Texture* texture;
@@ -237,31 +232,33 @@ void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture
 
 
 
-bool edgeFunc(const Vec2 &a, const Vec2 &b, const Vec2 &c) {
-
-	return ((c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x) >= 0);
-}
 
 
-double shoelace(const Vec2& a, const Vec2& b, const Vec2& c) {
+// edge function using barycentric coordinates
+double signedArea(const Vec2& a, const Vec2& b, const Vec2& c) {
 
 	return .5 * ((b.y - a.y) * (b.x + a.x) + (c.y - b.y) * (c.x + b.x) + (a.y - c.y) * (a.x + c.x));
 }
 
 
-void triangle(std::vector<Vec2> vertices, Texture& framebuffer) {
+void triangle(std::vector<Vec2>& vertices, Texture& framebuffer) {
 
-	double area = shoelace(vertices[0], vertices[1], vertices[2]);
+	double area = signedArea(vertices[0], vertices[1], vertices[2]);
 
 	int minx = std::min(std::min(vertices[0].x, vertices[1].x), vertices[2].x);
 	int miny = std::min(std::min(vertices[0].y, vertices[1].y), vertices[2].y);
 	int maxx = std::max(std::max(vertices[0].x, vertices[1].x), vertices[2].x);
 	int maxy = std::max(std::max(vertices[0].y, vertices[1].y), vertices[2].y);
-
+	//if (area < 1) return; //backface culling
 
 	for (int x = minx; x <= maxx; x++) {
 		for (int y = miny; y <= maxy; y++) {
-			putPixel(x, y, 255, 255, 255, framebuffer);
+			float a = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[1], vertices[2]) / area;
+			float b = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[2], vertices[0]) / area;
+			float c = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[0], vertices[1]) / area;
+			if (a > 0 && b > 0 && c > 0) {
+				putPixel(x, y, 255, 255, 255, framebuffer);
+			}
 
 		}
 

@@ -7,7 +7,7 @@ with progress as well as additional features planned, and I do plan to build a r
 ## Features
 
 - [x] Wireframe Drawing
-- [ ] Triangle Rasterization
+- [x] Triangle Rasterization
 - [ ] Z-Buffer
 - [ ] Camera Controls
 - [ ] 3d Model Import
