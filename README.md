@@ -15,7 +15,11 @@ with progress as well as additional features planned, and I do plan to build a r
 - [ ] Shadows
 - [ ] Math Library
 
+## Wireframe
 <img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/4d2a91b7-6e3f-4fbb-a203-af2e74df347c" />
+
+## Triangle Filling
+<img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/9b076fa9-2949-4178-b8a0-ad5766201575" />
 
 
 ## Build
