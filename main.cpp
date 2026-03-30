@@ -5,6 +5,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include "JM_Math.h"
+
 
 
 
@@ -26,97 +28,9 @@ struct Texture {
 
 
 
-struct Vec2 {
-	float x, y;
 
 
-	// operations
-	Vec2 operator+(const Vec2& other) const {
-		return { x + other.x, y + other.y };
-	}
 
-	Vec2 operator-(const Vec2& other) const {
-		return { x - other.x, y - other.y };
-	}
-
-	Vec2 operator*(const Vec2& other) const {
-		return { x * other.x, y * other.y };
-	}
-
-	Vec2 operator/(const Vec2& other) const {
-		return { x / other.x, y / other.y };
-	}
-
-	float dot(const Vec2& other) const {
-		return { x * other.x + y * other.y };
-	}
-
-};
-
-struct Vec3 {
-	float x, y, z;
-
-
-	// operations
-	Vec3 operator+(const Vec3& other) const {
-		return { x + other.x, y + other.y, z + other.z };
-	}
-
-	Vec3 operator-(const Vec3& other) const {
-		return { x - other.x, y - other.y, z - other.z };
-	}
-
-	Vec3 operator*(const Vec3& other) const {
-		return { x * other.x, y * other.y, z * other.z };
-	}
-
-	Vec3 operator/(const Vec3& other) const {
-		return { x / other.x, y / other.y, z / other.z };
-	}
-
-	float dot(const Vec3& other) const {
-		return { x * other.x + y * other.y + z * other.z };
-	}
-
-	Vec3 cross(const Vec3& other) const {
-		return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x };
-	}
-
-	float length() const {
-		return sqrtf(x * x + y * y + z * z);
-	}
-
-	Vec3 normalized() const {
-		float len = length();
-		return { x / len, y / len, z / len };
-	}
-
-};
-
-/*struct Mat4 {
-
-	float m[16];
-
-	
-
-	Mat4 operator+(const Mat4& other) {
-		Mat4 result;
-
-		for (int s = 0; s < m.size(); s++) {
-			for (int i = 0; i < m[s].size(); i++) {
-				m[s][i] = m[s][i] + other.m[s][i];
-			}
-		}
-
-
-		return { result };
-
-	}
-
-	Mat4 operator-(const Mat4& other) {
-
-	}
-};*/
 
 
 
@@ -169,7 +83,7 @@ void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 		}
 	}
 
-};
+}
 
 
 void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
@@ -211,7 +125,7 @@ void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 		}
 	}
 
-};
+}
 
 // uses bresenham
 void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
@@ -241,7 +155,7 @@ double signedArea(const Vec2& a, const Vec2& b, const Vec2& c) {
 }
 
 
-void triangle(std::vector<Vec2>& vertices, Texture& framebuffer) {
+void triangle(const std::vector<Vec2>& vertices, Texture& framebuffer) {
 
 	double area = signedArea(vertices[0], vertices[1], vertices[2]);
 
@@ -269,8 +183,8 @@ void triangle(std::vector<Vec2>& vertices, Texture& framebuffer) {
 
 
 int main(int argc, char* argv[]) {
-	#define WIDTH  800
-	#define HEIGHT 600
+	constexpr int WIDTH = 800;
+	constexpr int HEIGHT = 600;
 	Texture framebuffer(WIDTH, HEIGHT);
 
 
