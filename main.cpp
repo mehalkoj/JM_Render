@@ -6,7 +6,7 @@
 #include <SDL3/SDL_main.h>
 
 #include "JM_Math.h"
-
+#include "mdl_importer.h"
 
 
 
@@ -165,6 +165,13 @@ void triangle(const std::vector<Vec2>& vertices, Texture& framebuffer) {
 	int maxy = std::max(std::max(vertices[0].y, vertices[1].y), vertices[2].y);
 	//if (area < 1) return; //backface culling
 
+	// iteration for drawing line
+	for (int i = 0; i < vertices.size(); i++) {
+		int next = (i + 1) % vertices.size();
+		drawLine(vertices[i].x, vertices[i].y, vertices[next].x, vertices[next].y, 255, 255, 255, framebuffer);
+
+	}
+
 	for (int x = minx; x <= maxx; x++) {
 		for (int y = miny; y <= maxy; y++) {
 			float a = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[1], vertices[2]) / area;
@@ -182,6 +189,9 @@ void triangle(const std::vector<Vec2>& vertices, Texture& framebuffer) {
 
 
 
+
+
+
 int main(int argc, char* argv[]) {
 	constexpr int WIDTH = 800;
 	constexpr int HEIGHT = 600;
@@ -193,11 +203,9 @@ int main(int argc, char* argv[]) {
 	vertices.push_back({ 400, 100 });
 	vertices.push_back({ 200, 450 });
 	vertices.push_back({ 600, 450 });
-	//vertices.push_back({ 400, 100 });
-
-	//vertices.push_back({ 400, 100 });
 
 
+	importer();
 
 
 
@@ -224,10 +232,6 @@ int main(int argc, char* argv[]) {
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, framebuffer.Width, framebuffer.Height);
 
 
-	/*Mat4 matrix1;
-	matrix1.matrix[0][3] = 5;
-	std::cout << matrix1.matrix[0][3] << std::endl;*/
-
 
 
 	// main loop
@@ -241,13 +245,6 @@ int main(int argc, char* argv[]) {
 
 			// clear
 			memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
-
-
-			for (int i = 0; i < vertices.size(); i++) {
-				int next = (i + 1) % vertices.size();
-				drawLine(vertices[i].x, vertices[i].y, vertices[next].x, vertices[next].y, 255, 255, 255, framebuffer);
-
-			}
 
 
 			triangle(vertices, framebuffer);

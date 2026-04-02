@@ -21,9 +21,15 @@
     <ClCompile Include="JM_Math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="mdl_importer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="JM_Math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mdl_importer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

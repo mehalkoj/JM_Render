@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClCompile Include="JM_Math.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mdl_importer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vendored\SDL\VisualC\SDL\SDL.vcxproj">
@@ -142,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="JM_Math.h" />
+    <ClInclude Include="mdl_importer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
