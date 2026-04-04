@@ -45,6 +45,8 @@ struct Vec3 {
 
 
 struct Vertex {
-	Vec2 pos;
+	Vec3 pos;
 	Vec3 color;
+	Vec3 normal;
+	Vec2 uv;
 };

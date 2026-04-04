@@ -26,6 +26,10 @@ struct Texture {
 		pixels(std::make_unique<uint32_t[]>(w * h)) {}
 };
 
+struct App {
+
+};
+
 
 
 
@@ -149,27 +153,27 @@ void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture
 
 
 // edge function using barycentric coordinates
-double signedArea(const Vec2& a, const Vec2& b, const Vec2& c) {
+double signedArea(const Vertex& a, const Vertex& b, const Vertex& c) {
 
-	return .5 * ((b.y - a.y) * (b.x + a.x) + (c.y - b.y) * (c.x + b.x) + (a.y - c.y) * (a.x + c.x));
+	return .5 * ((b.pos.y - a.pos.y) * (b.pos.x + a.pos.x) + (c.pos.y - b.pos.y) * (c.pos.x + b.pos.x) + (a.pos.y - c.pos.y) * (a.pos.x + c.pos.x));
 }
 
 
-void triangle(const std::vector<Vec2>& vertices, Texture& framebuffer) {
+void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 
 	double area = signedArea(vertices[0], vertices[1], vertices[2]);
 
-	int minx = std::min(std::min(vertices[0].x, vertices[1].x), vertices[2].x);
-	int miny = std::min(std::min(vertices[0].y, vertices[1].y), vertices[2].y);
-	int maxx = std::max(std::max(vertices[0].x, vertices[1].x), vertices[2].x);
-	int maxy = std::max(std::max(vertices[0].y, vertices[1].y), vertices[2].y);
+	int minx = std::min(std::min(vertices[0].pos.x, vertices[1].pos.x), vertices[2].pos.x);
+	int miny = std::min(std::min(vertices[0].pos.y, vertices[1].pos.y), vertices[2].pos.y);
+	int maxx = std::max(std::max(vertices[0].pos.x, vertices[1].pos.x), vertices[2].pos.x);
+	int maxy = std::max(std::max(vertices[0].pos.y, vertices[1].pos.y), vertices[2].pos.y);
 	//if (area < 1) return; //backface culling
 
 	for (int x = minx; x <= maxx; x++) {
 		for (int y = miny; y <= maxy; y++) {
-			float a = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[1], vertices[2]) / area;
-			float b = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[2], vertices[0]) / area;
-			float c = signedArea(Vec2{ static_cast<float>(x), static_cast<float>(y) }, vertices[0], vertices[1]) / area;
+			float a = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[1], vertices[2]) / area;
+			float b = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[2], vertices[0]) / area;
+			float c = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[0], vertices[1]) / area;
 			if (a > 0 && b > 0 && c > 0) {
 				putPixel(x, y, 255, 255, 255, framebuffer);
 			}
@@ -189,7 +193,7 @@ int main(int argc, char* argv[]) {
 
 
 
-	std::vector<Vec2> vertices;
+	std::vector<Vertex> vertices;
 	vertices.push_back({ 400, 100 });
 	vertices.push_back({ 200, 450 });
 	vertices.push_back({ 600, 450 });
@@ -245,7 +249,7 @@ int main(int argc, char* argv[]) {
 
 			for (int i = 0; i < vertices.size(); i++) {
 				int next = (i + 1) % vertices.size();
-				drawLine(vertices[i].x, vertices[i].y, vertices[next].x, vertices[next].y, 255, 255, 255, framebuffer);
+				drawLine(vertices[i].pos.x, vertices[i].pos.y, vertices[next].pos.x, vertices[next].pos.y, 255, 255, 255, framebuffer);
 
 			}
 
