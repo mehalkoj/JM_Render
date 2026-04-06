@@ -1,7 +1,9 @@
 #include "mdl_importer.h"
 
 
+struct Model {
 
+};
 
 
 void importer() {
