@@ -65,5 +65,12 @@
 		return { x / len, y / len, z / len };
 	}
 
+	float& Vec3::operator[](int i) {
+		return (&x)[i]; 
+	}
+	float Vec3::operator[](int i) const {
+		return (&x)[i]; 
+	}
+
 
 

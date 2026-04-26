@@ -41,7 +41,10 @@ struct Vec3 {
 		float length() const;
 
 		Vec3 normalized() const;
-	};
+
+		float& operator[](int i);
+		float operator[](int i) const;
+};
 
 
 struct Vertex {

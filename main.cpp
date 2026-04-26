@@ -4,9 +4,9 @@
 #include <list>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-
+#include <tuple>
 #include "JM_Math.h"
-#include "mdl_importer.h"
+#include "model.h"
 
 
 
@@ -15,6 +15,9 @@ SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Texture* texture;
 SDL_Event event;
+
+constexpr int WIDTH = 800;
+constexpr int HEIGHT = 600;
 
 struct Texture {
 	int Height;
@@ -26,9 +29,13 @@ struct Texture {
 		pixels(std::make_unique<uint32_t[]>(w * h)) {}
 };
 
+
+
 struct App {
 
 };
+
+
 
 
 
@@ -54,7 +61,6 @@ void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 		std::swap(y0, y1);
 	}
 
-
 	int dx = x1 - x0;
 	int dy = y1 - y0;
 
@@ -67,9 +73,7 @@ void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 		dir = 1;
 	}
 
-
 	dy *= dir;
-
 
 	if (dx != 0) {
 		int y = y0;
@@ -82,13 +86,10 @@ void drawLineH(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 				p = p - 2 * dx;
 			}
 			p = p + 2 * dy;
-
-
 		}
 	}
 
 }
-
 
 void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
 	if (y0 > y1) {
@@ -96,10 +97,8 @@ void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 		std::swap(y0, y1);
 	}
 
-
 	int dx = x1 - x0;
 	int dy = y1 - y0;
-
 	int dir;
 
 	if (dx < 0) {
@@ -109,9 +108,7 @@ void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 		dir = 1;
 	}
 
-
 	dx *= dir;
-
 
 	if (dy != 0) {
 		int x = x0;
@@ -125,7 +122,6 @@ void drawLineV(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Textur
 			}
 			p = p + 2 * dx;
 
-
 		}
 	}
 
@@ -137,7 +133,6 @@ void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture
 		printf("pixels is null!\n");
 		return;
 	}
-	
 	
 	if (abs(x1 - x0) > abs(y1 - y0)) {
 		drawLineH(x0, y0, x1, y1, r, g, b, framebuffer);
@@ -191,31 +186,19 @@ void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 }
 
 
-
+std::pair<int, int> project(Vertex v) {
+	return { (v.pos.x + 1.) * WIDTH / 2,
+			 (1 - v.pos.y) * HEIGHT / 2 };
+}
 
 
 
 
 int main(int argc, char* argv[]) {
-	constexpr int WIDTH = 800;
-	constexpr int HEIGHT = 600;
+
 	Texture framebuffer(WIDTH, HEIGHT);
-
-
-
-	std::vector<Vertex> vertices;
-	vertices.push_back({ 400, 100 });
-	vertices.push_back({ 200, 450 });
-	vertices.push_back({ 600, 450 });
-
-
-	importer();
-
-
-
-
-
-
+	
+	Model model("C:/Projects/c++/JM_Render/obj/teapot.obj");
 
 
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -251,14 +234,16 @@ int main(int argc, char* argv[]) {
 			memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
 
 
-			for (int i = 0; i < vertices.size(); i++) {
-				int next = (i + 1) % vertices.size();
-				drawLine(vertices[i].pos.x, vertices[i].pos.y, vertices[next].pos.x, vertices[next].pos.y, 255, 255, 255, framebuffer);
-
+			// Model importing Wireframe
+			for (int i = 0; i < model.numfaces(); i++) {
+				auto [x0, y0] = project(model.vert(i, 0));
+				auto [x1, y1] = project(model.vert(i, 1));
+				auto [x2, y2] = project(model.vert(i, 2));
+				drawLine(x0, y0, x1, y1, 255, 255, 255, framebuffer);
+				drawLine(x1, y1, x2, y2, 255, 255, 255, framebuffer);
+				drawLine(x2, y2, x0, y0, 255, 255, 255, framebuffer);
 			}
 
-
-			triangle(vertices, framebuffer);
 
 
 
