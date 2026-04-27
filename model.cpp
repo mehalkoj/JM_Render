@@ -1,6 +1,13 @@
 #include "model.h"
 
 
+void replace_all(auto begin, auto end, auto target, auto swap) {
+	for (auto i = begin; i != end; ++i) {
+		if (*i == target) {
+			*i = swap;
+		}
+	}
+}
 
 
 std::vector<int> faces;
@@ -20,8 +27,7 @@ Model::Model(const std::string file) {
 	std::string line;
 
 	std::cout << "Loading In Model!" << std::endl;
-	while (!in.eof()) {
-		std::getline(in, line);
+	while (std::getline(in, line)) {
 		std::istringstream iss(line.c_str());
 		char trash;
 
@@ -37,7 +43,10 @@ Model::Model(const std::string file) {
 			std::string token;
 			while (iss >> token) {
 				// normalize: turn / or // into space seperated for all obj models
-				std::replace(token.begin(), token.end(), '/', ' ');
+				//std::replace(token.begin(), token.end(), '/', ' ');
+				replace_all(token.begin(), token.end(), '/', ' ');
+				
+
 				std::istringstream ts(token);
 				int f;
 				ts >> f;
@@ -51,7 +60,6 @@ Model::Model(const std::string file) {
 			}
 		}
 	}
-	//std::cerr << "# v# " << numverts() << " f# " << numfaces() << std::endl;
 	std::cout << "Done!" << std::endl;
 
 }

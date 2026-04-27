@@ -2,9 +2,9 @@
 #include <fstream>
 #include <vector>
 #include <list>
+#include <tuple>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-#include <tuple>
 #include "JM_Math.h"
 #include "model.h"
 
@@ -16,8 +16,8 @@ SDL_Renderer* renderer;
 SDL_Texture* texture;
 SDL_Event event;
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 600;
+constexpr int WIDTH = 1200;
+constexpr int HEIGHT = 800;
 
 struct Texture {
 	int Height;
@@ -162,7 +162,7 @@ void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 	int miny = std::min(std::min(vertices[0].pos.y, vertices[1].pos.y), vertices[2].pos.y);
 	int maxx = std::max(std::max(vertices[0].pos.x, vertices[1].pos.x), vertices[2].pos.x);
 	int maxy = std::max(std::max(vertices[0].pos.y, vertices[1].pos.y), vertices[2].pos.y);
-	//if (area < 1) return; //backface culling
+	if (area < 1) return; //backface culling
 
 	// iteration for drawing line
 	for (int i = 0; i < vertices.size(); i++) {
@@ -185,12 +185,11 @@ void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 	}
 }
 
-
-std::pair<int, int> project(Vertex v) {
+// projection
+std::pair<float, float> project(Vertex v) {
 	return { (v.pos.x + 1.) * WIDTH / 2,
 			 (1 - v.pos.y) * HEIGHT / 2 };
 }
-
 
 
 
@@ -198,7 +197,7 @@ int main(int argc, char* argv[]) {
 
 	Texture framebuffer(WIDTH, HEIGHT);
 	
-	Model model("C:/Projects/c++/JM_Render/obj/teapot.obj");
+	Model model("C:/Projects/c++/JM_Render/obj/diablo3_pose.obj");
 
 
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -234,14 +233,20 @@ int main(int argc, char* argv[]) {
 			memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
 
 
-			// Model importing Wireframe
+			// Rendering Model
 			for (int i = 0; i < model.numfaces(); i++) {
 				auto [x0, y0] = project(model.vert(i, 0));
 				auto [x1, y1] = project(model.vert(i, 1));
 				auto [x2, y2] = project(model.vert(i, 2));
-				drawLine(x0, y0, x1, y1, 255, 255, 255, framebuffer);
-				drawLine(x1, y1, x2, y2, 255, 255, 255, framebuffer);
-				drawLine(x2, y2, x0, y0, 255, 255, 255, framebuffer);
+
+				std::vector<Vertex> v = {
+					{ { x0, y0 } },
+					{ { x1, y1 } },
+					{ { x2, y2 } },
+				};
+
+				triangle(v, framebuffer);
+
 			}
 
 
