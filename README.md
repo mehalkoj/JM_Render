@@ -8,9 +8,9 @@ with progress as well as additional features planned, and I do plan to build a r
 
 - [x] Wireframe Drawing
 - [x] Triangle Rasterization
+- [x] OBJ Model Parsing
 - [ ] Z-Buffer
 - [ ] Camera Controls
-- [ ] 3d Model Import
 - [ ] Lighting
 - [ ] Shadows
 - [ ] Math Library
