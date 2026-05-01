@@ -46,7 +46,26 @@ struct Vec3 {
 		float operator[](int i) const;
 };
 
+struct Vec4 {
+	float x, y, z, w;
 
+	Vec4 operator+(const Vec4& other) const;
+
+	Vec4 operator-(const Vec4& other) const;
+
+	Vec4 operator*(const Vec4& other) const;
+
+	Vec4 operator/(const Vec4& other) const;
+
+	float cross2d(const Vec4& other) const;
+
+	Vec4 p_divide() const;
+};
+
+
+
+
+};
 struct Vertex {
 	Vec3 pos;
 	Vec3 color;
