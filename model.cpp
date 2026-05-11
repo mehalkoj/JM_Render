@@ -10,9 +10,6 @@ void replace_all(auto begin, auto end, auto target, auto swap) {
 }
 
 
-std::vector<int> faces;
-std::vector<Vertex> textures;
-std::vector<Vertex> normals;
 
 Model::Model(const std::string file) {
 	
@@ -60,6 +57,7 @@ Model::Model(const std::string file) {
 			}
 		}
 	}
+	normalize();
 	std::cout << "Done!" << std::endl;
 
 }
@@ -75,3 +73,31 @@ Vertex Model::vert(const int iface, const int nthvert) const {
 	return verts[faces[iface * 3 + nthvert]];
 }
 
+void Model::normalize() {
+	if (verts.empty()) return;
+
+	auto min = verts[0].pos;
+	auto max = verts[0].pos;
+
+	// AAB across all vertices
+	for (const Vertex& v : verts) {
+		for (int i : {0, 1, 2}) {
+			if (v.pos[i] < min[i]) min[i] = v.pos[i];
+			if (v.pos[i] > max[i]) max[i] = v.pos[i];
+		}
+	}
+
+	// Center of bbox
+	auto center = (min + max) * 0.5f;
+	auto extent = max - min;
+	float maxExtent = std::max({ extent[0], extent[1], extent[2] });
+	if (maxExtent == 0.f) return;
+
+	// Translate to origin unfiorm scale into [-1, 1]
+	float scale = 2.0f / maxExtent;
+	for (Vertex& v : verts) {
+		for (int i : {0, 1, 2}) {
+			v.pos[i] = (v.pos[i] - center[i]) * scale;
+		}
+	}
+}

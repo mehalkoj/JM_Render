@@ -68,5 +68,8 @@
     <ClInclude Include="..\Imgui\imstb_truetype.h">
       <Filter>ImGUI</Filter>
     </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

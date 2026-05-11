@@ -12,6 +12,7 @@
 class Model {
 	std::vector<Vertex> verts;
 	std::vector<int> faces;
+	void normalize();
 
 public:
 	Model(const std::string filename);
@@ -19,4 +20,5 @@ public:
 	int numfaces() const;
 	Vertex vert(const int i) const;
 	Vertex vert(const int iface, const int nthvert) const;
+
 };

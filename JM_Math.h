@@ -34,6 +34,9 @@ struct Vec3 {
 
 		Vec3 operator/(const Vec3& other) const;
 
+		Vec3 operator*(float s) const;
+		Vec3 operator/(float s) const;
+
 		float dot(const Vec3& other) const;
 
 		Vec3 cross(const Vec3& other) const;
@@ -62,10 +65,11 @@ struct Vec4 {
 	Vec4 p_divide() const;
 };
 
-
-
-
+struct Mat4 {
+	float mat[4][4];
+	Mat4 operator*(const Mat4& other) const;
 };
+
 struct Vertex {
 	Vec3 pos;
 	Vec3 color;

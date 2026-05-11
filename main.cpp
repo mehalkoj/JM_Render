@@ -5,6 +5,7 @@
 #include <tuple>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <random>
 #include "JM_Math.h"
 #include "model.h"
 
@@ -34,10 +35,6 @@ struct Texture {
 struct App {
 
 };
-
-
-
-
 
 
 
@@ -177,6 +174,8 @@ void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 			float b = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[2], vertices[0]) / area;
 			float c = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[0], vertices[1]) / area;
 			if (a > 0 && b > 0 && c > 0) {
+				char z = static_cast<unsigned char>(a * vertices[0].pos.z + b * vertices[1].pos.z + c * vertices[2].pos.z);
+				//zbuffer.set(x, y, { z });
 				putPixel(x, y, 255, 255, 255, framebuffer);
 			}
 
@@ -186,9 +185,11 @@ void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 }
 
 // projection
-std::pair<float, float> project(Vertex v) {
+std::tuple<float, float, float> project(Vertex v) {
 	return { (v.pos.x + 1.) * WIDTH / 2,
-			 (1 - v.pos.y) * HEIGHT / 2 };
+			 (1 - v.pos.y) * HEIGHT / 2,
+			 (v.pos.z + 1.) * 255. / 2 };
+			 //(1 - v.pos.y) * HEIGHT / 2 };
 }
 
 
@@ -197,7 +198,7 @@ int main(int argc, char* argv[]) {
 
 	Texture framebuffer(WIDTH, HEIGHT);
 	
-	Model model("C:/Projects/c++/JM_Render/obj/diablo3_pose.obj");
+	Model model("C:/Projects/c++/JM_Render/obj/teapot.obj");
 
 
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -217,6 +218,28 @@ int main(int argc, char* argv[]) {
 	renderer = SDL_CreateRenderer(window, NULL);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, framebuffer.Width, framebuffer.Height);
 
+	Mat4 mat1;
+	Mat4 mat2;
+
+	std::random_device rd;
+
+	// 2. Initialize the engine (Mersenne Twister) with the seed
+	std::mt19937 gen(rd());
+
+	// 3. Define the range [1, 100] inclusive
+	std::uniform_int_distribution<> distrib(1, 10);
+
+	/*for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			std::cout << mat1.mat[i][j] << '\t';
+		}
+	}
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			std::cout << mat1.mat[i][j] << '\t';
+		}
+	}*/
 
 
 
@@ -235,14 +258,14 @@ int main(int argc, char* argv[]) {
 
 			// Rendering Model
 			for (int i = 0; i < model.numfaces(); i++) {
-				auto [x0, y0] = project(model.vert(i, 0));
-				auto [x1, y1] = project(model.vert(i, 1));
-				auto [x2, y2] = project(model.vert(i, 2));
+				auto [x0, y0, z0] = project(model.vert(i, 0));
+				auto [x1, y1, z1] = project(model.vert(i, 1));
+				auto [x2, y2, z2] = project(model.vert(i, 2));
 
 				std::vector<Vertex> v = {
-					{ { x0, y0 } },
-					{ { x1, y1 } },
-					{ { x2, y2 } },
+					{ { x0, y0, z0 } },
+					{ { x1, y1, z1 } },
+					{ { x2, y2, z2 } },
 				};
 
 				triangle(v, framebuffer);
