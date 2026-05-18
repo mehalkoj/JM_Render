@@ -18,15 +18,12 @@ expand as I have other ideas for this project and plan on doing a release file a
 ## Wireframe
 <img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/4d2a91b7-6e3f-4fbb-a203-af2e74df347c" />
 
-### Tiny Renderer Normalized Model
-<img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/610f5c56-2d52-4303-a71c-da876f3d7389" />
-
-
 ## Triangle Filling
 <img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/9b076fa9-2949-4178-b8a0-ad5766201575" />
 
-### Tiny Renderer Normalized Model
-<img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/fcd3b7a1-8332-434e-8edf-6d2fc6ef6c3c" />
+### Normalized Model
+<img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/a5da56dc-8927-4cc1-9ccb-f3d4096c265f" />
+
 
 
 ## Build
