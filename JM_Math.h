@@ -67,7 +67,10 @@ struct Vec4 {
 
 struct Mat4 {
 	float mat[4][4];
-	Mat4 operator*(const Mat4& other) const;
+
+	static Mat4 identity(); // identity matrix
+
+	Mat4 operator*(const Mat4&) const;
 };
 
 struct Vertex {

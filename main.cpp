@@ -184,6 +184,9 @@ void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
 	}
 }
 
+
+
+
 // projection
 std::tuple<float, float, float> project(Vertex v) {
 	return { (v.pos.x + 1.) * WIDTH / 2,
@@ -217,29 +220,6 @@ int main(int argc, char* argv[]) {
 	
 	renderer = SDL_CreateRenderer(window, NULL);
 	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, framebuffer.Width, framebuffer.Height);
-
-	Mat4 mat1;
-	Mat4 mat2;
-
-	std::random_device rd;
-
-	// 2. Initialize the engine (Mersenne Twister) with the seed
-	std::mt19937 gen(rd());
-
-	// 3. Define the range [1, 100] inclusive
-	std::uniform_int_distribution<> distrib(1, 10);
-
-	/*for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			std::cout << mat1.mat[i][j] << '\t';
-		}
-	}
-
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			std::cout << mat1.mat[i][j] << '\t';
-		}
-	}*/
 
 
 

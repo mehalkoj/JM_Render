@@ -102,20 +102,31 @@
 
 
 
+	Mat4 Mat4::identity() {
+		Mat4 r = {
+			{
+				{ 1, 0, 0, 0 },
+				{ 0, 1, 0, 0 },
+				{ 0, 0, 1, 0 },
+				{ 0, 0, 0, 1 },
+			}
+		};
+
+		return r;
+
+	}
 
 	Mat4 Mat4::operator*(const Mat4& other) const {
 
 		float newmat[4][4] = {};
-
+		Mat4 result = {};
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				for (int k = 0; k < 4; k++) {
-					// what do you do after the values are multiplied? Where do you store the product, and how do you add it?
 					newmat[i][j] += mat[i][k] * other.mat[k][j];
 				}
 			}
 		}
-		Mat4 result;
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
@@ -125,3 +136,4 @@
 
 		return result;
 	};
+
