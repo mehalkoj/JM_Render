@@ -63,14 +63,24 @@ struct Vec4 {
 	float cross2d(const Vec4& other) const;
 
 	Vec4 p_divide() const;
+
+	float& operator[](int i);
+	float operator[](int i) const;
 };
 
 struct Mat4 {
 	float mat[4][4];
 
 	static Mat4 identity(); // identity matrix
+	static Mat4 translate();
+	static Mat4 scale();
+	static Mat4 roatate();
+	static Mat4 perspective();
+	static Mat4 lookAt();
 
 	Mat4 operator*(const Mat4&) const;
+	Vec4 operator*(const Vec4&) const;
+
 };
 
 struct Vertex {

@@ -100,6 +100,13 @@
 		return { x / w, y/ w, z / w, 1.0f };
 	}
 
+	float& Vec4::operator[](int i) {
+		return (&x)[i];
+	}
+	float Vec4::operator[](int i) const {
+		return (&x)[i];
+	}
+
 
 
 	Mat4 Mat4::identity() {
@@ -115,6 +122,8 @@
 		return r;
 
 	}
+
+
 
 	Mat4 Mat4::operator*(const Mat4& other) const {
 
@@ -135,5 +144,18 @@
 		}
 
 		return result;
-	};
+	}
+
+	Vec4 Mat4::operator*(const Vec4& other) const {
+
+		Vec4 result = {0, 0, 0, 0};
+		for (int i = 0; i < 4; i++) {
+				for (int k = 0; k < 4; k++) {
+					result[i] += mat[i][k] * other[k];
+
+				}
+			}
+
+		return result;
+	}
 
