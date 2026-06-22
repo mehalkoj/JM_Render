@@ -15,9 +15,9 @@ expand as I have other ideas for this project and plan on doing a release file a
 - [x] Math Library
 - [x] 3D/perspective
 - [x] z-buffer
-- [x] Flat Shading
+- [x] Flat Shading (fixed directional + ambient)
 - [ ] Camera Controls
-- [ ] Lighting
+- [ ] Lighting (Blinn-Phong)
 - [ ] Shadows 
 
 ## Wireframe
