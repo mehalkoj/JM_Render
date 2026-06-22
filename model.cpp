@@ -36,24 +36,20 @@ Model::Model(const std::string file) {
 		}
 		else if (!line.compare(0, 2, "f ")) {
 			iss >> trash;
-			int cnt = 0;
+			std::vector<int> fIndex;
 			std::string token;
 			while (iss >> token) {
 				// normalize: turn / or // into space seperated for all obj models
-				//std::replace(token.begin(), token.end(), '/', ' ');
 				replace_all(token.begin(), token.end(), '/', ' ');
-				
-
 				std::istringstream ts(token);
 				int f;
 				ts >> f;
-				faces.push_back(--f);
-				cnt++;
+				fIndex.push_back(f - 1);
 			}
-			if (cnt != 3) {
-				std::cerr << "Error: the face has " << cnt << " vertices, expected 3" << std::endl;
-				return;
-				
+			for (size_t i = 1; i + 1 < fIndex.size(); i++) {
+				faces.push_back(fIndex[0]);
+				faces.push_back(fIndex[i]);
+				faces.push_back(fIndex[i + 1]);
 			}
 		}
 	}

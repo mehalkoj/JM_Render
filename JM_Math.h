@@ -3,6 +3,13 @@
 #include <iostream>
 
 
+// takes rad
+/*float cos(float angle);
+
+//takes rad
+float sin(float angle);*/
+
+float rad(float degrees);
 
 
 struct Vec2 {
@@ -71,12 +78,12 @@ struct Vec4 {
 struct Mat4 {
 	float mat[4][4];
 
-	static Mat4 identity(); // identity matrix
-	static Mat4 translate();
-	static Mat4 scale();
-	static Mat4 roatate();
-	static Mat4 perspective();
-	static Mat4 lookAt();
+	static Mat4 identity();
+	static Mat4 translate(float tx, float ty, float tz);
+	static Mat4 scale(float sx, float sy, float sz);
+	static Mat4 rotateY(float radians);
+	static Mat4 perspective(float fovY, float aspect, float near, float far);
+	static Mat4 lookAt(const Vec3& eye, const Vec3& target, const Vec3& up);
 
 	Mat4 operator*(const Mat4&) const;
 	Vec4 operator*(const Vec4&) const;

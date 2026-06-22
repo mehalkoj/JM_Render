@@ -10,7 +10,9 @@ expand as I have other ideas for this project and plan on doing a release file a
 - [x] Triangle Rasterization
 - [x] OBJ Model Importing
 - [x] Math Library
-- [ ] 3D
+- [x] 3D/perspective
+- [x] z-buffer
+- [x] Flat Shading
 - [ ] Camera Controls
 - [ ] Lighting
 - [ ] Shadows 

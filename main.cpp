@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <vector>
 #include <list>
 #include <tuple>
@@ -35,11 +36,6 @@ struct Texture {
 struct App {
 
 };
-
-
-
-
-
 
 
 void putPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
@@ -140,10 +136,6 @@ void drawLine(int x0, int y0, int x1, int y1, Uint8 r, Uint8 g, Uint8 b, Texture
 }
 
 
-
-
-
-
 // edge function using barycentric coordinates
 double signedArea(const Vertex& a, const Vertex& b, const Vertex& c) {
 
@@ -151,57 +143,67 @@ double signedArea(const Vertex& a, const Vertex& b, const Vertex& c) {
 }
 
 
-void triangle(const std::vector<Vertex>& vertices, Texture& framebuffer) {
+void triangle(const std::vector<Vertex>& v, Texture& framebuffer, std::vector<float>& zbuffer) {
 
-	double area = signedArea(vertices[0], vertices[1], vertices[2]);
+	double area = signedArea(v[0], v[1], v[2]);
+	if (std::abs(area) < 1) return; //backface cull
 
-	int minx = std::min(std::min(vertices[0].pos.x, vertices[1].pos.x), vertices[2].pos.x);
-	int miny = std::min(std::min(vertices[0].pos.y, vertices[1].pos.y), vertices[2].pos.y);
-	int maxx = std::max(std::max(vertices[0].pos.x, vertices[1].pos.x), vertices[2].pos.x);
-	int maxy = std::max(std::max(vertices[0].pos.y, vertices[1].pos.y), vertices[2].pos.y);
-	if (area < 1) return; //backface culling
+
+	int minx = std::max(0, (int)std::min({ v[0].pos.x, v[1].pos.x, v[2].pos.x }));
+	int miny = std::max(0, (int)std::min({ v[0].pos.y, v[1].pos.y, v[2].pos.y }));
+	int maxx = std::min(framebuffer.Width - 1, (int)std::max({ v[0].pos.x, v[1].pos.x, v[2].pos.x }));
+	int maxy = std::min(framebuffer.Height - 1, (int)std::max({ v[0].pos.y, v[1].pos.y, v[2].pos.y }));
+
 
 	// iteration for drawing line
-	for (int i = 0; i < vertices.size(); i++) {
-		int next = (i + 1) % vertices.size();
-		drawLine(vertices[i].pos.x, vertices[i].pos.y, vertices[next].pos.x, vertices[next].pos.y, 255, 255, 255, framebuffer);
-
-	}
-
 	for (int x = minx; x <= maxx; x++) {
 		for (int y = miny; y <= maxy; y++) {
-			float a = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[1], vertices[2]) / area;
-			float b = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[2], vertices[0]) / area;
-			float c = signedArea(Vertex{ static_cast<float>(x), static_cast<float>(y) }, vertices[0], vertices[1]) / area;
-			if (a > 0 && b > 0 && c > 0) {
-				char z = static_cast<unsigned char>(a * vertices[0].pos.z + b * vertices[1].pos.z + c * vertices[2].pos.z);
-				//zbuffer.set(x, y, { z });
-				putPixel(x, y, 255, 255, 255, framebuffer);
+			float a = signedArea(Vertex{ {(float)x,(float)y} }, v[1], v[2]) / area;
+			float b = signedArea(Vertex{ {(float)x,(float)y} }, v[2], v[0]) / area;
+			float c = signedArea(Vertex{ {(float)x,(float)y} }, v[0], v[1]) / area;
+			if (a >= 0 && b >= 0 && c >= 0){
+				float z = a * v[0].pos.z + b * v[1].pos.z + c * v[2].pos.z;
+			int idx = y * framebuffer.Width + x;
+
+			if (z < zbuffer[idx]) {
+				zbuffer[idx] = z;
+				Uint8 s = (Uint8)(v[0].color.x * 255.0f + 0.5f);
+				putPixel(x, y, s, s, s, framebuffer);
+				}
 			}
-
 		}
-
 	}
 }
 
 
 
+Vertex project(const Vertex& in, const Mat4& mvp) {
+	Vec4 clip = mvp * Vec4{ in.pos.x, in.pos.y, in.pos.z, 1.0f };
 
-// projection
-std::tuple<float, float, float> project(Vertex v) {
-	return { (v.pos.x + 1.) * WIDTH / 2,
-			 (1 - v.pos.y) * HEIGHT / 2,
-			 (v.pos.z + 1.) * 255. / 2 };
-			 //(1 - v.pos.y) * HEIGHT / 2 };
+	Vertex out = in;
+	out.pos.x = (clip.x + 1.0f) * 0.5f * WIDTH;
+	out.pos.y = (1.0f - clip.y) * 0.5f * HEIGHT; // flip y
+	out.pos.z = clip.z;
+	return out;
 }
 
 
 
 int main(int argc, char* argv[]) {
 
+	// quick area to load in any model.
+	std::string mdlPath;
+	std::cout << "Input path of obj model";
+	std::cin >> mdlPath;
+
 	Texture framebuffer(WIDTH, HEIGHT);
+
+	std::vector<float> zbuffer(WIDTH * HEIGHT, 1e9f); //statrts infinitely far
 	
-	Model model("C:/Projects/c++/JM_Render/obj/teapot.obj");
+	Model model(mdlPath);
+
+	float aspect = (float)WIDTH / (float)HEIGHT;
+	Mat4 projectMat = Mat4::perspective(60.0f, aspect, 0.1f, 100.0f);
 
 
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -219,47 +221,59 @@ int main(int argc, char* argv[]) {
 
 	
 	renderer = SDL_CreateRenderer(window, NULL);
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, framebuffer.Width, framebuffer.Height);
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, framebuffer.Width, framebuffer.Height);
+	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
 
 
+	float angle = 0.0f;
 
 	// main loop
 	bool running = true;
 	while (running) {
+
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				running = false;
 			}
 		}
 
-			// clear
-			memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
+		// clear
+		memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
+		for (float& d : zbuffer) d = 1e9f;
 
 
-			// Rendering Model
+
+
+			angle += 2.0f; // degrees per frame
+
+			Mat4 mvp = projectMat * (Mat4::translate(0, 0, -4) * Mat4::rotateY(angle));
+
 			for (int i = 0; i < model.numfaces(); i++) {
-				auto [x0, y0, z0] = project(model.vert(i, 0));
-				auto [x1, y1, z1] = project(model.vert(i, 1));
-				auto [x2, y2, z2] = project(model.vert(i, 2));
+				Vertex a = model.vert(i, 0);
+				Vertex b = model.vert(i, 1);
+				Vertex c = model.vert(i, 2);
 
-				std::vector<Vertex> v = {
-					{ { x0, y0, z0 } },
-					{ { x1, y1, z1 } },
-					{ { x2, y2, z2 } },
-				};
+				Vec3 n = (b.pos - a.pos).cross(c.pos - a.pos).normalized();
+				float ca = std::cos(rad(angle)), sa = std::sin(rad(angle));
+				Vec3 nWorld = { ca * n.x - sa * n.z, n.y, sa * n.x + ca * n.z };
 
-				triangle(v, framebuffer);
+				float key = nWorld.dot(Vec3{ 0, 0, 1 });   if (key < 0) key = 0;  // front
+				float fill = nWorld.dot(Vec3{ 0, 0, -1 });  if (fill < 0) fill = 0;  // back
+				float intensity = 0.15f + 0.7f * key + 0.3f * fill;   // ambient + key + dimmer fill
+
+				Vertex pa = project(a, mvp); pa.color = { intensity, intensity, intensity };
+				Vertex pb = project(b, mvp); pb.color = { intensity, intensity, intensity };
+				Vertex pc = project(c, mvp); pc.color = { intensity, intensity, intensity };
+
+				std::vector<Vertex> tri = { pa, pb, pc };
+				triangle(tri, framebuffer, zbuffer);
 
 			}
 
-
-
-
-			SDL_UpdateTexture(texture, NULL, framebuffer.pixels.get(), framebuffer.Width * sizeof(Uint32));
+			SDL_UpdateTexture(texture, NULL, framebuffer.pixels.get(), framebuffer.Width * sizeof(uint32_t));
+			SDL_RenderClear(renderer);
 			SDL_RenderTexture(renderer, texture, NULL, NULL);
 			SDL_RenderPresent(renderer);
-
-
 		}
 
 		SDL_DestroyTexture(texture);
