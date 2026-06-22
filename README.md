@@ -3,7 +3,7 @@
 
 
 
-A custom software rasterizer with its own mini math lib, that uses SDL3 and Imgui. This project was created due to being curious about how
+A custom software rasterizer with its own mini math lib and SDL3 for window handeling. This project was created due to being curious about how
 graphics work at the lower end of things, so what graphics APIs like Vulkan and OpenGL do underneath the hood. The features lists will
 expand as I have other ideas for this project and plan on doing a release file as a toy to play with.
 
