@@ -1,4 +1,7 @@
 # JM Render
+<img width="400" height="250" alt="2026-06-2116-25-50-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/23bafe6a-5bc2-4c50-8da2-e8658a4838a7" /> <img width="400" height="250" alt="2026-06-2116-26-46-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/a7fccd43-4cf6-4a70-8b8b-763707bf6427" />
+
+
 
 A custom software rasterizer with its own mini math lib, that uses SDL3 and Imgui. This project was created due to being curious about how
 graphics work at the lower end of things, so what graphics APIs like Vulkan and OpenGL do underneath the hood. The features lists will
@@ -26,18 +29,22 @@ expand as I have other ideas for this project and plan on doing a release file a
 ### Normalized Model
 <img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/a5da56dc-8927-4cc1-9ccb-f3d4096c265f" />
 
+### Shaded Teapot
+<img width="600" height="430" alt="image" src="https://github.com/user-attachments/assets/b555b28f-827d-4a37-ae7a-9bead2a32700" />
+
+<img width="600" height="430" alt="2026-06-2116-26-46-ezgif com-video-to-gif-converter" src="https://github.com/user-attachments/assets/a7fccd43-4cf6-4a70-8b8b-763707bf6427" />
+
 
 
 ## Build
 ### Requirements
 - Visual Studio 2022
 - SDL3
-- Dear ImGui
-
+  
 ### Setup
 1. Clone the repo
 2. Open `JM_Render.sln` in Visual Studio
-3. Ensure SDL3 and ImGui are linked (see their docs for setup)
+3. Ensure SDL3 are linked (see their docs for setup)
 4. Build and run
 
 ## References
@@ -50,7 +57,7 @@ expand as I have other ideas for this project and plan on doing a release file a
 [A Parallel Algorithm for Polygon Rasterization](https://www.cs.drexel.edu/~deb39/Classes/Papers/comp175-06-pineda.pdf)
 
 [Algorithm for computer control of a digital plotter](https://web.archive.org/web/20080528040104/http://www.research.ibm.com/journal/sj/041/ibmsjIVRIC.pdf)
-
+[Computer Graphics from Scratch by Gabriel Gambetta](https://gabrielgambetta.com/computer-graphics-from-scratch/)
 
 
 Fundamentals of Computer Graphics Third Edition by Steve Marschner and Peter Shirley
