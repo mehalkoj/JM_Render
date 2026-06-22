@@ -44,7 +44,7 @@ expand as I have other ideas for this project and plan on doing a release file a
 ### Setup
 1. Clone the repo
 2. Open `JM_Render.sln` in Visual Studio
-3. Ensure SDL3 are linked (see their docs for setup)
+3. Ensure SDL3 is linked (see their docs for setup)
 4. Build and run
 
 ## References
