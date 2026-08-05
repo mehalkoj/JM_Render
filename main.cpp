@@ -3,14 +3,14 @@
 #include <filesystem>
 #include <vector>
 #include <list>
-#include <tuple>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <random>
 #include "JM_Math.h"
 #include "model.h"
+#include <cmath>
 
-
+void processInput(SDL_Window* window);
 
 
 SDL_Window* window;
@@ -36,6 +36,15 @@ struct Texture {
 struct App {
 
 };
+
+//Camera
+Vec3 cameraPos = Vec3(0.0, 0.0, 3.0);
+Vec3 cameraFront = Vec3(0.0, 0.0, -1.0);
+Vec3 cameraUp = Vec3(0.0, 1.0, 0.0);
+
+//time
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 
 void putPixel(int x, int y, Uint8 r, Uint8 g, Uint8 b, Texture& framebuffer) {
@@ -146,7 +155,7 @@ double signedArea(const Vertex& a, const Vertex& b, const Vertex& c) {
 void triangle(const std::vector<Vertex>& v, Texture& framebuffer, std::vector<float>& zbuffer) {
 
 	double area = signedArea(v[0], v[1], v[2]);
-	if (std::abs(area) < 1) return; //backface cull
+	if (std::abs(area) < 1) return; //rejects degenerate triangles
 
 
 	int minx = std::max(0, (int)std::min({ v[0].pos.x, v[1].pos.x, v[2].pos.x }));
@@ -178,7 +187,7 @@ void triangle(const std::vector<Vertex>& v, Texture& framebuffer, std::vector<fl
 
 
 Vertex project(const Vertex& in, const Mat4& mvp) {
-	Vec4 clip = mvp * Vec4{ in.pos.x, in.pos.y, in.pos.z, 1.0f };
+	Vec4 clip = (mvp * Vec4{ in.pos.x, in.pos.y, in.pos.z, 1.0f }).p_divide();
 
 	Vertex out = in;
 	out.pos.x = (clip.x + 1.0f) * 0.5f * WIDTH;
@@ -211,7 +220,7 @@ int main(int argc, char* argv[]) {
 		return 3;
 	}
 
-	window = SDL_CreateWindow(
+	SDL_Window* window = SDL_CreateWindow(
 		"JM Render",
 		framebuffer.Width,
 		framebuffer.Height,
@@ -237,16 +246,29 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
+		//per-frame time logic
+		float curFrame = SDL_GetTicks() / 1000.0f;
+		deltaTime = curFrame - lastFrame;
+		lastFrame = curFrame;
+
+		// Input
+		processInput(window);
+
 		// clear
 		memset(framebuffer.pixels.get(), 0, framebuffer.Width * framebuffer.Height * sizeof(uint32_t));
 		for (float& d : zbuffer) d = 1e9f;
 
 
 
+		Mat4 view;
+		float radius = 5.0f;
 
-			angle += 2.0f; // degrees per frame
+		view = view.lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-			Mat4 mvp = projectMat * (Mat4::translate(0, 0, -4) * Mat4::rotateY(angle));
+
+		//Mat4 mvp = projectMat * (Mat4::translate(0, 0, -4) * Mat4::rotateY(angle)); //old way hardcoded in.
+		Mat4 mvp = projectMat * view;
+
 
 			for (int i = 0; i < model.numfaces(); i++) {
 				Vertex a = model.vert(i, 0);
@@ -254,26 +276,24 @@ int main(int argc, char* argv[]) {
 				Vertex c = model.vert(i, 2);
 
 				Vec3 n = (b.pos - a.pos).cross(c.pos - a.pos).normalized();
-				float ca = std::cos(rad(angle)), sa = std::sin(rad(angle));
-				Vec3 nWorld = { ca * n.x - sa * n.z, n.y, sa * n.x + ca * n.z };
 
-				float key = nWorld.dot(Vec3{ 0, 0, 1 });   if (key < 0) key = 0;  // front
-				float fill = nWorld.dot(Vec3{ 0, 0, -1 });  if (fill < 0) fill = 0;  // back
-				float intensity = 0.15f + 0.7f * key + 0.3f * fill;   // ambient + key + dimmer fill
+				Vec3 lightDir = Vec3(std::sin(curFrame) * radius, 0.0f, std::cos(curFrame) * radius).normalized();
+				float key = n.dot(lightDir);        if (key < 0) key = 0;
+				float fill = n.dot(lightDir * -1.0f); if (fill < 0) fill = 0;
+				float intensity = 0.15f + 0.7f * key + 0.3f * fill;
 
 				Vertex pa = project(a, mvp); pa.color = { intensity, intensity, intensity };
 				Vertex pb = project(b, mvp); pb.color = { intensity, intensity, intensity };
 				Vertex pc = project(c, mvp); pc.color = { intensity, intensity, intensity };
 
-				std::vector<Vertex> tri = { pa, pb, pc };
-				triangle(tri, framebuffer, zbuffer);
+				triangle({pa, pb, pc}, framebuffer, zbuffer);
 
 			}
 
-			SDL_UpdateTexture(texture, NULL, framebuffer.pixels.get(), framebuffer.Width * sizeof(uint32_t));
-			SDL_RenderClear(renderer);
-			SDL_RenderTexture(renderer, texture, NULL, NULL);
-			SDL_RenderPresent(renderer);
+		SDL_UpdateTexture(texture, NULL, framebuffer.pixels.get(), framebuffer.Width * sizeof(uint32_t));
+		SDL_RenderClear(renderer);
+		SDL_RenderTexture(renderer, texture, NULL, NULL);
+		SDL_RenderPresent(renderer);
 		}
 
 		SDL_DestroyTexture(texture);
@@ -281,4 +301,32 @@ int main(int argc, char* argv[]) {
 		SDL_DestroyWindow(window);
 		SDL_Quit();
 		return 0;
+	}
+
+
+	void processInput(SDL_Window* window) {
+
+		const bool* key_states = SDL_GetKeyboardState(NULL);
+		float cameraSpeed = static_cast<float>(2.5 * deltaTime);
+
+		if (key_states[SDL_SCANCODE_W]) {
+			cameraPos += cameraFront * cameraSpeed;
+			std::cout << cameraPos << "\n";
+		}
+
+		if (key_states[SDL_SCANCODE_S]) {
+			cameraPos -= cameraFront * cameraSpeed;
+			std::cout << cameraPos << "\n";
+		}
+
+
+		if (key_states[SDL_SCANCODE_A]) {
+			cameraPos -= cameraFront.cross(cameraUp).normalized() * cameraSpeed;
+			std::cout << cameraPos << "\n";
+		}
+
+		if (key_states[SDL_SCANCODE_D]) {
+			cameraPos += cameraFront.cross(cameraUp).normalized() * cameraSpeed;
+			std::cout << cameraPos << "\n";
+		}
 	}

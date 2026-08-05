@@ -4,7 +4,7 @@
 
 
 float rad(float degrees) {
-	return degrees * (3.14159265358979f / 180.0);
+	return degrees * (3.14159265358979f / 180.0f);
 }
 
 
@@ -31,7 +31,7 @@ float rad(float degrees) {
 
 
 
-	// operations
+	// Vector to Vector operations
 	Vec3 Vec3::operator+(const Vec3& other) const {
 		return { x + other.x, y + other.y, z + other.z };
 	}
@@ -48,7 +48,20 @@ float rad(float degrees) {
 		return { x / other.x, y / other.y, z / other.z };
 	}
 
-	Vec3 Vec3::operator*(float s) const { 
+	Vec3 Vec3::operator+=(const Vec3& other) {
+		return { x += other.x, y += other.y, z += other.z };
+	}
+
+	Vec3 Vec3::operator-=(const Vec3& other) {
+		return { x -= other.x, y -= other.y, z -= other.z };
+	}
+
+	std::ostream& operator<<(std::ostream& os, const Vec3& vec) {
+		os << vec.x << ", " << vec.y << ", " << vec.z;
+		 return os;
+	}
+
+	Vec3 Vec3::operator*(const float s) const { 
 		return { x * s, y * s, z * s }; 
 	}
 
@@ -79,6 +92,7 @@ float rad(float degrees) {
 	float Vec3::operator[](int i) const {
 		return (&x)[i]; 
 	}
+
 
 
 
@@ -170,14 +184,14 @@ float rad(float degrees) {
 
 
 
-	Mat4 Mat4::perspective(float fovY, float aspect, float near, float far) {
+	Mat4 Mat4::perspective(float fovY, float aspect, float Znear, float Zfar) {
 
 
 		Mat4 r = {
 			{
 				{1 / (aspect * std::tan(rad(fovY / 2))), 0, 0, 0},
 				{0, 1 / std::tan(rad(fovY / 2)), 0, 0 },
-				{0, 0, -far / (far - near), -far * near / (far - near)},
+				{0, 0, -Zfar / (Zfar - Znear), -Zfar * Znear / (Zfar - Znear)},
 				{0, 0, -1, 0 },
 			}
 		};
@@ -185,17 +199,22 @@ float rad(float degrees) {
 	}
 
 
-	/*Mat4 Mat4::lookAt(const Vec3& eye, const Vec3& target, const Vec3& up) {
+	Mat4 Mat4::lookAt(const Vec3& from, const Vec3& to, const Vec3& up) {
+		Vec3 forward = (from - to).normalized();
+		Vec3 right = up.cross(forward).normalized();
+		Vec3 trueUp = forward.cross(right);
+
+
 		Mat4 r = {
 			{
-				{, 0, , 0},
-				{0,1, 0, 0 },
-				{, 0, , 0},
+				{right.x, right.y, right.z, -right.dot(from)},
+				{trueUp.x, trueUp.y, trueUp.z, -trueUp.dot(from)},
+				{forward.x, forward.y, forward.z, -forward.dot(from)},
 				{0, 0, 0, 1 },
 			}
 		};
 		return r;
-	}*/
+	}
 
 
 
@@ -235,10 +254,7 @@ float rad(float degrees) {
 				}
 			}
 
-		// required for projection matrices
-		if (result[3] != 1) {
-			 return result = result.p_divide();
-		}
+
 
 		return result;
 	}
