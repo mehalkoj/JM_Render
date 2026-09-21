@@ -16,7 +16,7 @@ expand as I have other ideas for this project and plan on doing a release file a
 - [x] 3D/perspective
 - [x] z-buffer
 - [x] Flat Shading (fixed directional + ambient)
-- [ ] Camera Controls
+- [x] Camera Controls
 - [ ] Lighting (Blinn-Phong)
 - [ ] Shadows 
 

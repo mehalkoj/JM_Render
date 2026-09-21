@@ -8,6 +8,7 @@ float rad(float degrees) {
 }
 
 
+
 	// operations
 	Vec2 Vec2::operator+(const Vec2& other) const {
 		return { x + other.x, y + other.y };
@@ -112,9 +113,17 @@ float rad(float degrees) {
 		return { x / other.x, y / other.y, z / other.z, w / other.w };
 	}
 
+	float Vec4::dot(const Vec4& other) const {
+		return { x * other.x + y * other.y + z * other.z + w * other.w };
+	}
+
 	float Vec4::cross2d(const Vec4& other) const {
 		return { x * other.y - y * other.x };
 	}
+
+	/*float Vec4::cross3d(const Vec4& other) const {
+		return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x };
+	}*/
 
 	// perspevtive division
 	Vec4 Vec4::p_divide() const {

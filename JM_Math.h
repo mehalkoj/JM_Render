@@ -72,7 +72,10 @@ struct Vec4 {
 
 	Vec4 operator/(const Vec4& other) const;
 
+	float dot(const Vec4& other) const;
+
 	float cross2d(const Vec4& other) const;
+	float cross3d(const Vec4& other) const;
 
 	Vec4 p_divide() const;
 

@@ -52,6 +52,9 @@ Model::Model(const std::string file) {
 				faces.push_back(fIndex[i + 1]);
 			}
 		}
+		else if (!line.compare(0, 2, "vn ")) {
+
+		}
 	}
 	normalize();
 	std::cout << "Done!" << std::endl;
