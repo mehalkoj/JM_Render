@@ -240,15 +240,15 @@ Vertex toScreen(const Vec4& clip) {
 int main(int argc, char* argv[]) {
 
 	// quick area to load in any model.
-	//std::string mdlPath;
-	//std::cout << "Input path of obj model";
-	//std::cin >> mdlPath;
+	std::string mdlPath;
+	std::cout << "Input path of obj model";
+	std::cin >> mdlPath;
 
 	Texture framebuffer(WIDTH, HEIGHT);
 
 	std::vector<float> zbuffer(WIDTH * HEIGHT, 1e9f); //statrts infinitely far
 	
-	Model model("C:/Projects/c++/JM_Render/obj/teapot.obj");
+	Model model(mdlPath);
 
 	float aspect = (float)WIDTH / (float)HEIGHT;
 	Mat4 projectMat = Mat4::perspective(60.0f, aspect, 0.1f, 100.0f);
