@@ -1,0 +1,6 @@
+[
+  {
+    "label": "Build & Run",
+    "command": "cmake --build build && ./build/JM_Render"
+  }
+]
